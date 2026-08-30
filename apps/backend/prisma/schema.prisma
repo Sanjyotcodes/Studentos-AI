@@ -1,0 +1,248 @@
+// StudentOS AI — Prisma schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  CANCELLED
+  // A whole-day college holiday, as distinct from CANCELLED (one lecture
+  // called off) — both are excluded from the attendance percentage the same
+  // way, but tracked separately so a student can tell them apart in history
+  // (Phase 16).
+  HOLIDAY
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum AssessmentType {
+  QUIZ
+  ASSIGNMENT
+  MIDTERM
+  FINAL
+  LAB
+  OTHER
+}
+
+enum DayOfWeek {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  subjects      Subject[]
+  tasks         Task[]
+  notes         Note[]
+  examDates     ExamDate[]
+  studyPlan     StudyPlan?
+  marks         Mark[]
+  timetableSlots TimetableSlot[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid())
+  userId     String
+  tokenHash  String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Subject {
+  id                    String   @id @default(uuid())
+  userId                String
+  name                  String
+  code                  String
+  totalClassesRequired  Int?
+  minAttendancePercent  Int      @default(75)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendanceRecords AttendanceRecord[]
+  tasks             Task[]
+  notes             Note[]
+  examDates         ExamDate[]
+  marks             Mark[]
+  timetableSlots    TimetableSlot[]
+
+  // A student's own subject codes must be unique to them (not globally) — this
+  // also gives the seed script a stable key to upsert against.
+  @@unique([userId, code])
+  @@index([userId])
+}
+
+model AttendanceRecord {
+  id        String           @id @default(uuid())
+  subjectId String
+  date      DateTime
+  status    AttendanceStatus
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  // The unique constraint below already backs an index on (subjectId, date) in
+  // Postgres — including a leftmost-prefix lookup on subjectId alone — so no
+  // separate @@index is needed.
+  @@unique([subjectId, date])
+}
+
+model Task {
+  id        String       @id @default(uuid())
+  userId    String
+  subjectId String?
+  title     String
+  notes     String?
+  dueDate   DateTime?
+  priority  TaskPriority @default(MEDIUM)
+  status    TaskStatus   @default(TODO)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([subjectId])
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  userId    String
+  subjectId String?
+  title     String   @default("Untitled")
+  // Ordered array of block objects (paragraph/heading/list/code) — see
+  // packages/shared's noteBlockSchema for the validated shape. Stored as JSON
+  // rather than a separate Block table since blocks are never queried
+  // independently of their note (Phase 12).
+  blocks    Json     @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([subjectId])
+}
+
+model ExamDate {
+  id        String   @id @default(uuid())
+  userId    String
+  subjectId String
+  date      DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Unlike Task/Note's optional subjectId, an exam date without a subject is
+  // meaningless — so this link is required, and deleting the subject deletes
+  // the exam date with it (Cascade), not SetNull (Phase 13).
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  // At most one active exam date per subject — creating a new one for a
+  // subject that already has one updates it in place (upsert), rather than
+  // accumulating stale dates the planner would have to disambiguate.
+  @@unique([subjectId])
+  @@index([userId])
+}
+
+model StudyPlan {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  // Validated array of {date, subjectId, subjectName, activity} entries —
+  // see packages/shared's studyPlanEntrySchema. One row per user; @@unique
+  // above is what makes "regenerate" an upsert instead of ever duplicating
+  // (Phase 13, T13.7).
+  entries   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Mark {
+  id             String         @id @default(uuid())
+  userId         String
+  subjectId      String
+  assessmentType AssessmentType
+  label          String?
+  // scored/max/weight are Float, not Int — marks like "8.5/10" and
+  // fractional weights are both legitimate (Phase 14).
+  scored         Float
+  max            Float
+  // Weight is relative, not required to sum to 100 across a subject's marks
+  // — grades.service.ts normalizes by dividing by the sum of weights
+  // actually recorded (T14.5), so a partially-entered semester still
+  // produces a well-defined percentage.
+  weight         Float
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // A mark without a subject is meaningless (same reasoning as ExamDate,
+  // Phase 13) — deleting the subject deletes its marks with it.
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([subjectId])
+}
+
+model TimetableSlot {
+  id        String    @id @default(uuid())
+  userId    String
+  subjectId String
+  dayOfWeek DayOfWeek
+  // "HH:mm" 24-hour strings, matching the app's established date-only-string
+  // convention elsewhere (dueDate, attendance date) — comparison/overlap
+  // logic lives in timetable.service.ts, not a DB constraint (Phase 16).
+  startTime String
+  endTime   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // A timetable slot without a subject is meaningless (same reasoning as
+  // ExamDate/Mark) — deleting the subject deletes its slots with it.
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([subjectId])
+  // Fast lookup for "what's scheduled today" (attendance integration, T16.6).
+  @@index([userId, dayOfWeek])
+}

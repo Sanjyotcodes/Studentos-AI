@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Edit",
+      "Write",
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx jest:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(curl http://localhost:*)",
+      "Bash(docker compose:*)",
+      "PowerShell(npm run:*)",
+      "PowerShell(npm install:*)",
+      "PowerShell(npx tsc:*)",
+      "PowerShell(npx prisma:*)",
+      "PowerShell(git status:*)",
+      "PowerShell(git diff:*)",
+      "PowerShell(Get-ChildItem:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(git push:*)",
+      "PowerShell(Remove-Item:*)",
+      "PowerShell(git push:*)",
+      "Read(**/.env)",
+      "Read(**/*.env)",
+      "Read(**/.env.*)"
+    ]
+  }
+}
