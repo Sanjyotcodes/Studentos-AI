@@ -7,68 +7,161 @@
  * which maps each of these names into tailwind.config.ts as `hsl(var(--x))`).
  * This file is the single source of truth for the actual color values;
  * design-tokens.ts only ever references these names, never re-states them.
+ *
+ * Two families live here, and they must not be confused:
+ *
+ * - **UI / brand tokens** (HSL channels). Surfaces, text, and the decorative
+ *   brand gradient. Free to be expressive.
+ * - **Data-viz tokens** (`--viz-*`, `--status-*`, plain hex). These encode
+ *   values, so they are chosen by validation, not by taste — each set was run
+ *   through the dataviz skill's validator against this app's own card surfaces
+ *   (light #ffffff, dark #1f1b19) and passes the lightness/chroma/CVD/
+ *   normal-vision gates. The dark steps are separately selected for the dark
+ *   surface, never an automatic flip of the light ones. Do not hand-edit these
+ *   without re-running the validator.
  */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 4%;
+    --background: 30 33% 98%;
+    --foreground: 20 14% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 4%;
+    --card-foreground: 20 14% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 4%;
+    --popover-foreground: 20 14% 12%;
 
-    --primary: 234 89% 60%;
+    --primary: 14 74% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 5% 96%;
-    --secondary-foreground: 240 6% 10%;
+    --secondary: 20 20% 95%;
+    --secondary-foreground: 20 14% 15%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    --muted: 20 20% 95%;
+    --muted-foreground: 20 8% 46%;
 
-    --accent: 240 5% 96%;
-    --accent-foreground: 240 6% 10%;
+    --accent: 168 58% 94%;
+    --accent-foreground: 168 66% 22%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 234 89% 60%;
+    --border: 20 15% 89%;
+    --input: 20 15% 89%;
+    --ring: 14 74% 55%;
 
-    --radius: 0.5rem;
+    --tint-coral: 14 74% 95%;
+    --tint-coral-foreground: 14 60% 32%;
+    --tint-teal: 168 58% 92%;
+    --tint-teal-foreground: 168 66% 22%;
+    --tint-amber: 38 92% 93%;
+    --tint-amber-foreground: 30 70% 32%;
+    --tint-purple: 252 60% 95%;
+    --tint-purple-foreground: 252 40% 35%;
+
+    /* Decorative brand gradient stops — coral is the existing brand anchor;
+       the other three extend it into a warm→cool sweep. Used for gradient
+       text, glows, buttons and the aurora. NEVER for data marks. */
+    --brand-coral: 14 84% 58%;
+    --brand-pink: 335 85% 63%;
+    --brand-violet: 265 80% 66%;
+    --brand-cyan: 183 72% 50%;
+
+    /* Glass surfaces — a translucent card plane over the aurora. */
+    --glass-bg: 0 0% 100%;
+    --glass-opacity: 0.72;
+    --glass-border: 20 20% 100%;
+    --glass-shadow: 20 30% 55%;
+
+    --radius: 1rem;
+
+    /* --- Data-viz: categorical (light steps, validated vs #ffffff) --- */
+    --viz-1: #2a78d6;
+    --viz-2: #eb6834;
+    --viz-3: #1baf7a;
+    --viz-4: #eda100;
+    --viz-5: #e87ba4;
+    --viz-6: #008300;
+    --viz-7: #4a3aa7;
+    --viz-8: #e34948;
+
+    /* --- Data-viz: status (fixed, never themed) ---
+       Reserved for state, never reused as a series color. good↔critical are
+       a red/green pair (deutan ΔE 4.1), so every status indicator in this app
+       ships an icon AND a text label — color never carries the meaning alone. */
+    --status-good: #0ca30c;
+    --status-warning: #fab219;
+    --status-serious: #ec835a;
+    --status-critical: #d03b3b;
+
+    /* Meter track — the "unfilled" remainder, same-ramp and recessive. */
+    --viz-track: 20 15% 91%;
+    --viz-grid: 20 15% 88%;
   }
 
   .dark {
-    --background: 240 10% 4%;
-    --foreground: 0 0% 98%;
+    --background: 20 14% 7%;
+    --foreground: 30 20% 95%;
 
-    --card: 240 8% 7%;
-    --card-foreground: 0 0% 98%;
+    --card: 20 12% 11%;
+    --card-foreground: 30 20% 95%;
 
-    --popover: 240 8% 7%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 20 12% 11%;
+    --popover-foreground: 30 20% 95%;
 
-    --primary: 234 89% 66%;
-    --primary-foreground: 240 10% 4%;
+    --primary: 14 80% 62%;
+    --primary-foreground: 20 14% 7%;
 
-    --secondary: 240 5% 14%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 20 10% 16%;
+    --secondary-foreground: 30 20% 95%;
 
-    --muted: 240 5% 14%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 20 10% 16%;
+    --muted-foreground: 20 8% 65%;
 
-    --accent: 240 5% 14%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 168 40% 16%;
+    --accent-foreground: 168 55% 78%;
 
     --destructive: 0 63% 45%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5% 18%;
-    --input: 240 5% 18%;
-    --ring: 234 89% 66%;
+    --border: 20 10% 20%;
+    --input: 20 10% 20%;
+    --ring: 14 80% 62%;
+
+    --tint-coral: 14 45% 18%;
+    --tint-coral-foreground: 14 80% 78%;
+    --tint-teal: 168 40% 15%;
+    --tint-teal-foreground: 168 55% 78%;
+    --tint-amber: 38 50% 16%;
+    --tint-amber-foreground: 38 80% 75%;
+    --tint-purple: 252 35% 18%;
+    --tint-purple-foreground: 252 60% 82%;
+
+    --brand-coral: 14 88% 64%;
+    --brand-pink: 335 88% 68%;
+    --brand-violet: 265 85% 72%;
+    --brand-cyan: 183 76% 56%;
+
+    --glass-bg: 20 12% 13%;
+    --glass-opacity: 0.66;
+    --glass-border: 30 20% 100%;
+    --glass-shadow: 20 40% 2%;
+
+    /* --- Data-viz: categorical (dark steps, validated vs #1f1b19) --- */
+    --viz-1: #3987e5;
+    --viz-2: #d95926;
+    --viz-3: #199e70;
+    --viz-4: #c98500;
+    --viz-5: #d55181;
+    --viz-6: #008300;
+    --viz-7: #9085e9;
+    --viz-8: #e66767;
+
+    /* Status steps are mode-invariant by design — all four clear 3:1 on the
+       dark surface too, so they are deliberately NOT restated here. */
+
+    --viz-track: 20 10% 20%;
+    --viz-grid: 20 10% 18%;
   }
 
   * {
@@ -77,5 +170,268 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Keep the aurora from ever widening the page. */
+    overflow-x: hidden;
+  }
+
+  /* Large standalone numbers use proportional figures; tabular is reserved
+     for columns that must align vertically (dataviz: typeface & figures). */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  /* ---- Glass surface -------------------------------------------------- */
+  /* A translucent plane that lets the aurora show through. Falls back to an
+     opaque card where backdrop-filter is unsupported. */
+  .glass {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+  }
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .glass {
+      background-color: hsl(var(--glass-bg) / var(--glass-opacity));
+      -webkit-backdrop-filter: blur(16px) saturate(165%);
+      backdrop-filter: blur(16px) saturate(165%);
+      border: 1px solid hsl(var(--glass-border) / 0.14);
+      box-shadow:
+        0 1px 0 0 hsl(var(--glass-border) / 0.22) inset,
+        0 10px 36px -12px hsl(var(--glass-shadow) / 0.26);
+    }
+  }
+
+  /* ---- Gradient text -------------------------------------------------- */
+  .text-gradient {
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--brand-coral)),
+      hsl(var(--brand-pink)) 42%,
+      hsl(var(--brand-violet)) 78%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    /* A transparent-filled heading is invisible under forced-colors; opt out. */
+    @media (forced-colors: active) {
+      color: CanvasText;
+      background-image: none;
+    }
+  }
+
+  /* An animated version for the wordmark — the gradient itself drifts. */
+  .text-gradient-animated {
+    background-size: 220% 100%;
+    animation: gradient-pan 9s ease-in-out infinite;
+  }
+
+  /* ---- Gradient border ring ------------------------------------------- */
+  /* Two-layer trick: the element's own background sits on top of a gradient
+     painted into the border box, so only the 1px edge shows the gradient. */
+  .ring-gradient {
+    position: relative;
+  }
+  .ring-gradient::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--brand-coral) / 0.9),
+      hsl(var(--brand-pink) / 0.55) 45%,
+      hsl(var(--brand-violet) / 0.75)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* ---- Film grain ------------------------------------------------------ */
+  /* Inline SVG turbulence — no network request, so it survives the CSP and
+     works offline. Pure texture; sits above the aurora, below content. */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Native select --------------------------------------------------- */
+  /* The app uses plain <select> elements (no custom listbox component), so
+     they're styled globally here to match Input rather than repeating the
+     class list at ~6 call sites. `appearance: none` + a background-image
+     caret is what lets the control adopt the glass treatment; the caret is an
+     inline SVG using `currentColor` so it follows the theme automatically. */
+  select {
+    @apply h-10 w-full rounded-md border border-input bg-card/55 px-3 py-2 pr-9 text-sm backdrop-blur;
+    @apply transition-all duration-fast hover:border-brand-coral/40;
+    @apply focus-visible:border-brand-coral/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-coral/35;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+  }
+
+  /* The dropdown list itself is OS-rendered and can't inherit the glass, so
+     give the options an opaque surface that at least matches the theme. */
+  select option {
+    background-color: hsl(var(--popover));
+    color: hsl(var(--popover-foreground));
+  }
+
+  /* ---- Spotlight hover -------------------------------------------------- */
+  /* --spot-x/--spot-y are written by GlowCard from pointer position. The glow
+     is masked to the card's own radius and never intercepts clicks. */
+  .spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 240ms ease;
+    background: radial-gradient(
+      320px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+      hsl(var(--brand-coral) / 0.16),
+      transparent 62%
+    );
+  }
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  /* Shimmer sweep for skeletons. */
+  .shimmer {
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--foreground) / 0.07) 42%,
+      hsl(var(--foreground) / 0.07) 58%,
+      transparent
+    );
+    background-size: 220% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Keyframes                                                               */
+/* ---------------------------------------------------------------------- */
+
+@keyframes gradient-pan {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 140% 0;
+  }
+  to {
+    background-position: -40% 0;
+  }
+}
+
+/* The three aurora blobs. Transform/opacity only — these run on the
+   compositor and never trigger layout, which is what keeps a permanently
+   animating background cheap. */
+@keyframes aurora-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(6vw, 4vh, 0) scale(1.12);
+  }
+  66% {
+    transform: translate3d(-4vw, 7vh, 0) scale(0.94);
+  }
+}
+
+@keyframes aurora-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  33% {
+    transform: translate3d(-7vw, 5vh, 0) scale(0.92);
+  }
+  66% {
+    transform: translate3d(5vw, -4vh, 0) scale(1.15);
+  }
+}
+
+@keyframes aurora-c {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.98);
+  }
+  50% {
+    transform: translate3d(4vw, -6vh, 0) scale(1.18);
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Reduced motion                                                          */
+/* ---------------------------------------------------------------------- */
+/*
+ * One global stop for CSS-driven motion. Framer Motion is handled separately
+ * via MotionConfig reducedMotion="user" in the providers — between the two,
+ * every moving thing in the app honors the OS setting. Decorative layers stay
+ * *visible* (the aurora is part of the look); they simply stop moving.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

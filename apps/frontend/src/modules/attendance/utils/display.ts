@@ -14,11 +14,10 @@ export function riskStatusLabel(status: AttendanceRiskStatus): string {
   return status === 'AT_RISK' ? 'At risk' : 'Safe';
 }
 
-export function riskStatusBadgeClass(status: AttendanceRiskStatus): string {
-  return status === 'AT_RISK'
-    ? 'bg-destructive/10 text-destructive'
-    : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
-}
+// riskStatusBadgeClass was removed: status is now rendered only by
+// <StatusBadge>, which forces the icon + label pairing that a red/green
+// status pair requires. A loose "give me the classes" helper made it easy to
+// render a bare colored pill and quietly lose that guarantee.
 
 export function attendanceStatusLabel(status: AttendanceStatus): string {
   switch (status) {

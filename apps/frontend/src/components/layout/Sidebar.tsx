@@ -11,12 +11,15 @@ import {
   LayoutDashboard,
   ListTodo,
   Settings,
+  Sparkles,
   X,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useSidebarStore } from '@/stores/useSidebarStore';
+import { spring } from '@/styles/design-tokens';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -44,7 +47,7 @@ export function Sidebar({ isMobileOpen, onCloseMobile }: SidebarProps) {
       {/* Mobile scrim — closes the drawer on outside tap */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm md:hidden"
           onClick={onCloseMobile}
           aria-hidden="true"
         />
@@ -52,15 +55,23 @@ export function Sidebar({ isMobileOpen, onCloseMobile }: SidebarProps) {
 
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border bg-card',
+          'fixed inset-y-0 left-0 z-50 flex flex-col border-r border-border/60',
+          'bg-card/70 backdrop-blur-xl',
           'transition-all duration-base ease-in-out',
           'w-sidebar-width',
           isCollapsed && 'md:w-sidebar-width-collapsed',
           isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
-        <div className="flex h-navbar-height items-center justify-between border-b border-border px-4">
-          {!isCollapsed && <span className="truncate text-sm font-semibold">StudentOS AI</span>}
+        <div className="flex h-navbar-height items-center justify-between border-b border-border/60 px-4">
+          {!isCollapsed && (
+            <Link href="/" className="flex min-w-0 items-center gap-2">
+              <Sparkles className="h-4 w-4 shrink-0 text-brand-coral" aria-hidden="true" />
+              <span className="text-gradient text-gradient-animated truncate text-sm font-bold tracking-tight">
+                StudentOS AI
+              </span>
+            </Link>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -91,15 +102,35 @@ export function Sidebar({ isMobileOpen, onCloseMobile }: SidebarProps) {
                 href={item.href}
                 onClick={onCloseMobile}
                 className={cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-fast',
-                  isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                  'group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium',
+                  'transition-colors duration-fast',
+                  isActive ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground',
                   isCollapsed && 'md:justify-center',
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <Icon className="h-4 w-4 shrink-0" />
+                {/* The active pill is one shared element: `layoutId` makes
+                    Framer animate it *between* nav items on route change
+                    rather than cross-fading two separate pills. */}
+                {isActive && (
+                  <motion.span
+                    layoutId="sidebar-active-pill"
+                    transition={spring.soft}
+                    className="absolute inset-0 -z-10 rounded-md bg-gradient-to-r from-brand-coral to-brand-pink
+                               shadow-[0_4px_14px_-4px_hsl(var(--brand-coral)/0.6)]"
+                  />
+                )}
+                {/* Hover wash for inactive items, under the pill either way. */}
+                {!isActive && (
+                  <span className="absolute inset-0 -z-10 rounded-md bg-accent opacity-0 transition-opacity duration-fast group-hover:opacity-100" />
+                )}
+
+                <Icon
+                  className={cn(
+                    'h-4 w-4 shrink-0 transition-transform duration-base',
+                    'group-hover:scale-110',
+                  )}
+                />
                 <span className={cn(isCollapsed && 'md:hidden')}>{item.label}</span>
               </Link>
             );

@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { QuickMarkRow } from '@/modules/attendance/components/QuickMarkRow';
-import { formatPercentage, riskStatusBadgeClass, riskStatusLabel } from '@/modules/attendance/utils/display';
+import { StatusBadge } from '@/components/viz/StatusBadge';
+import { formatPercentage, riskStatusLabel } from '@/modules/attendance/utils/display';
 
 interface SubjectListItemProps {
   subject: Subject;
@@ -45,11 +46,10 @@ export function SubjectListItem({
               </span>
             )}
             {summary && (
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${riskStatusBadgeClass(summary.status)}`}
-              >
-                {riskStatusLabel(summary.status)}
-              </span>
+              <StatusBadge
+                tone={summary.status === 'AT_RISK' ? 'critical' : 'good'}
+                label={riskStatusLabel(summary.status)}
+              />
             )}
           </div>
 

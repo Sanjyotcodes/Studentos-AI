@@ -1,7 +1,9 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import { MotionProvider } from '@/components/providers/MotionProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
+import { AuroraBackground } from '@/components/visual/AuroraBackground';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
@@ -18,10 +20,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <QueryProvider>
-            {children}
-            <Toaster />
-          </QueryProvider>
+          <MotionProvider>
+            <QueryProvider>
+              {/* Fixed, -z-10, pointer-events-none — mounted once at the root
+                  so the aurora is continuous across route changes instead of
+                  restarting its drift on every navigation. */}
+              <AuroraBackground />
+              {children}
+              <Toaster />
+            </QueryProvider>
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>

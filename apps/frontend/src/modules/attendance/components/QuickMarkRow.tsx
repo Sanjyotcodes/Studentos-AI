@@ -16,9 +16,9 @@ const OPTIONS: Array<{
   status: AttendanceStatus;
   label: string;
   icon: typeof Check;
-  activeVariant: 'default' | 'destructive' | 'secondary';
+  activeVariant: 'selected' | 'destructive' | 'secondary';
 }> = [
-  { status: 'PRESENT', label: 'Present', icon: Check, activeVariant: 'default' },
+  { status: 'PRESENT', label: 'Present', icon: Check, activeVariant: 'selected' },
   { status: 'ABSENT', label: 'Absent', icon: X, activeVariant: 'destructive' },
   { status: 'CANCELLED', label: 'Cancelled', icon: Ban, activeVariant: 'secondary' },
   { status: 'HOLIDAY', label: 'Holiday', icon: Sun, activeVariant: 'secondary' },

@@ -1,7 +1,10 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { EASE_OUT } from '@/lib/motion';
+import { spring } from '@/styles/design-tokens';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ErrorState } from '@/components/shared/ErrorState';
@@ -37,14 +40,27 @@ export function InsightsPanel() {
         : null;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="ring-gradient relative overflow-hidden">
+      {/* A soft brand wash behind the AI panel so it reads as the "special"
+          surface on the page without needing a louder border. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-violet/20 blur-3xl"
+      />
+      <CardHeader className="relative">
         <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4" />
-          AI insights
+          <span className="relative flex h-7 w-7 items-center justify-center rounded-full bg-brand-coral/15">
+            {/* Slow pulse marks this as the live/AI surface. Decorative. */}
+            <span
+              aria-hidden="true"
+              className="animate-pulse-ring absolute inset-0 rounded-full bg-brand-coral/40"
+            />
+            <Sparkles className="relative h-3.5 w-3.5 text-brand-coral" />
+          </span>
+          <span className="text-gradient font-bold">AI insights</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="relative space-y-4">
         {summaryQuery.isLoading && <LoadingBlock label="Generating your summary…" />}
         {summaryQuery.isError && (
           <ErrorState
@@ -55,14 +71,17 @@ export function InsightsPanel() {
           />
         )}
         {summaryQuery.data && (
-          <p
+          <motion.p
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: EASE_OUT }}
             className={cn(
-              'text-sm',
+              'text-sm leading-relaxed',
               summaryQuery.data.refused && 'rounded-md bg-muted px-3 py-2 text-muted-foreground',
             )}
           >
             {summaryQuery.data.summary}
-          </p>
+          </motion.p>
         )}
 
         <form onSubmit={onAsk} className="space-y-1.5">
@@ -89,15 +108,20 @@ export function InsightsPanel() {
           </p>
         )}
         {askAi.isSuccess && (
-          <p
+          <motion.p
             role="status"
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={spring.soft}
             className={cn(
-              'rounded-md px-3 py-2 text-sm',
-              askAi.data.refused ? 'bg-muted text-muted-foreground' : 'bg-accent',
+              'rounded-md px-3 py-2 text-sm leading-relaxed',
+              askAi.data.refused
+                ? 'bg-muted text-muted-foreground'
+                : 'bg-accent text-accent-foreground',
             )}
           >
             {askAi.data.answer}
-          </p>
+          </motion.p>
         )}
       </CardContent>
     </Card>

@@ -1,10 +1,12 @@
 'use client';
 
+import { AnimatePresence, motion } from 'framer-motion';
 import { LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLogout } from '@/modules/auth/hooks/useLogout';
+import { spring } from '@/styles/design-tokens';
 
 interface NavbarProps {
   onOpenMobileMenu: () => void;
@@ -20,7 +22,7 @@ export function Navbar({ onOpenMobileMenu }: NavbarProps) {
   useEffect(() => setMounted(true), []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-navbar-height items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-30 flex h-navbar-height items-center justify-between border-b border-border/60 bg-background/70 px-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/45">
       <Button
         variant="ghost"
         size="icon"
@@ -39,11 +41,24 @@ export function Navbar({ onOpenMobileMenu }: NavbarProps) {
         aria-label="Toggle dark mode"
         onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
       >
-        {mounted && resolvedTheme === 'dark' ? (
-          <Sun className="h-4 w-4" />
-        ) : (
-          <Moon className="h-4 w-4" />
-        )}
+        {/* The icon swap gets a rotate+fade so the theme toggle feels like a
+            switch being thrown rather than a glyph being replaced. */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.span
+            key={mounted && resolvedTheme === 'dark' ? 'sun' : 'moon'}
+            initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+            transition={spring.snappy}
+            className="flex items-center justify-center"
+          >
+            {mounted && resolvedTheme === 'dark' ? (
+              <Sun className="h-4 w-4 text-brand-coral" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
+          </motion.span>
+        </AnimatePresence>
       </Button>
 
       <Button

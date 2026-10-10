@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
+// The base surface is now glass (see `.glass` in globals.css) so the aurora
+// shows through every panel. `.glass` sets its own background and border, so
+// callers that need an opaque or tinted card still override it the usual way
+// via className — e.g. the tinted dashboard panels pass `bg-tint-*`, which
+// wins on specificity because Tailwind utilities come after @layer components.
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('rounded-lg border border-border bg-card text-card-foreground shadow-sm', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn('glass rounded-lg text-card-foreground', className)} {...props} />
   ),
 );
 Card.displayName = 'Card';

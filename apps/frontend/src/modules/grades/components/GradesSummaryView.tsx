@@ -28,9 +28,9 @@ export function GradesSummaryView({ summary }: { summary: GradesSummary }) {
                 <td className="px-3 py-2">
                   {subject.subjectName} <span className="text-muted-foreground">({subject.subjectCode})</span>
                 </td>
-                <td className="px-3 py-2">{subject.totalWeightRecorded}</td>
-                <td className="px-3 py-2">{formatPercentage(subject.weightedPercentage)}</td>
-                <td className="px-3 py-2">{formatGradePoint(subject.gradePoint)}</td>
+                <td className="px-3 py-2 tabular">{subject.totalWeightRecorded}</td>
+                <td className="px-3 py-2 tabular">{formatPercentage(subject.weightedPercentage)}</td>
+                <td className="px-3 py-2 tabular">{formatGradePoint(subject.gradePoint)}</td>
               </tr>
             ))}
           </tbody>

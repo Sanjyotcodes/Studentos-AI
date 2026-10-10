@@ -9,14 +9,15 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { LoadingBlock } from '@/components/shared/LoadingBlock';
 import { AttendanceHistoryList } from '@/modules/attendance/components/AttendanceHistoryList';
-import { AttendanceProgressBar } from '@/modules/attendance/components/AttendanceProgressBar';
+import { Meter } from '@/components/viz/Meter';
 import { QuickMarkRow } from '@/modules/attendance/components/QuickMarkRow';
+import { StatusBadge } from '@/components/viz/StatusBadge';
 import { SubjectFormDialog } from '@/modules/attendance/components/SubjectFormDialog';
 import { useAttendanceRecords } from '@/modules/attendance/hooks/useAttendanceRecords';
 import { useAttendanceSummary } from '@/modules/attendance/hooks/useAttendanceSummary';
 import { useSubjects } from '@/modules/attendance/hooks/useSubjects';
 import { useTodayAttendance } from '@/modules/attendance/hooks/useTodayAttendance';
-import { formatPercentage, riskStatusBadgeClass, riskStatusLabel } from '@/modules/attendance/utils/display';
+import { formatPercentage, riskStatusLabel } from '@/modules/attendance/utils/display';
 import { useAttendanceSettingsStore } from '@/stores/useAttendanceSettingsStore';
 
 export default function SubjectAttendancePage() {
@@ -75,16 +76,20 @@ export default function SubjectAttendancePage() {
           <CardTitle className="flex items-center gap-2">
             {formatPercentage(summary?.percentage ?? null)}
             {summary && (
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${riskStatusBadgeClass(summary.status)}`}
-              >
-                {riskStatusLabel(summary.status)}
-              </span>
+              <StatusBadge
+                tone={summary.status === 'AT_RISK' ? 'critical' : 'good'}
+                label={riskStatusLabel(summary.status)}
+              />
             )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <AttendanceProgressBar percentage={summary?.percentage ?? null} atRisk={summary?.status === 'AT_RISK'} />
+          <Meter
+            percentage={summary?.percentage ?? null}
+            tone={summary?.status === 'AT_RISK' ? 'critical' : 'good'}
+            cutoff={subject.minAttendancePercent}
+            label={`${subject.name} attendance`}
+          />
           <p className="text-sm text-muted-foreground">
             Cutoff {subject.minAttendancePercent}%
             {summary && summary.total > 0 && (
